@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAADS-R - Questionnaire</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        
+        .instructions {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+        
+        .instructions h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .instructions ul {
+            margin-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        
+        .patient-id-section {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .patient-id-section label {
+            display: block;
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .patient-id-section input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1em;
+            border: 2px solid #ffc107;
+            border-radius: 5px;
+            transition: border-color 0.3s;
+        }
+        
+        .patient-id-section input:focus {
+            outline: none;
+            border-color: #ff9800;
+        }
+        
+        .question {
+            background: #f8f9fa;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .question:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .question-text {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .question-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 0.9em;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .option input[type="radio"] {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .option input[type="radio"]:checked ~ label {
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .option label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 1em;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+            display: none;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px 50px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #c3e6cb;
+            display: none;
+            text-align: center;
+            font-size: 1.1em;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.6em;
+            }
+            
+            .question {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>RAADS-R</h1>
+        <p class="subtitle">Échelle diagnostique de l'autisme et de l'Asperger de Ritvo - révisée</p>
+        
+        <div class="instructions">
+            <h3>📋 Instructions</h3>
+            <p style="margin-bottom: 15px;">Cela vous prendra environ une heure pour répondre à toutes ces questions. N'hésitez pas à vous arrêter si vous commencez à être fatigué, et reprenez lorsque vous êtes reposé.</p>
+            <p style="margin-bottom: 15px;">Il est important de lire chaque question jusqu'au bout et de réfléchir attentivement à la réponse avant de cocher <strong>une seule</strong> des quatre options suivantes :</p>
+            <ul>
+                <li><strong>Vrai maintenant et quand j'avais moins de 16 ans</strong></li>
+                <li><strong>Vrai seulement maintenant</strong></li>
+                <li><strong>Vrai seulement quand j'avais moins de 16 ans</strong></li>
+                <li><strong>Jamais vrai</strong></li>
+            </ul>
+            <p style="margin-top: 15px; font-style: italic;">SVP, répondez aux questions selon votre propre opinion et ne répondez pas en fonction de ce que vous pensez que les autres attendent de vous.</p>
+        </div>
+        
+        <div class="patient-id-section">
+            <label for="patientId">🔑 Identifiant Patient (obligatoire) :</label>
+            <input type="text" id="patientId" placeholder="Entrez votre identifiant" required>
+        </div>
+        
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+        <div id="loadingMessage" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Envoi en cours...</p>
+        </div>
+        
+        <form id="raadsForm">
+            <!-- Questions will be generated by JavaScript -->
+        </form>
+        
+        <button type="button" class="submit-btn" id="submitBtn">Envoyer le questionnaire</button>
+    </div>
+
+    <script>
+        // Configuration - REMPLACEZ CETTE URL PAR VOTRE URL GOOGLE APPS SCRIPT
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby0u-n2NUEeVS5NleE4AjRGqndrkuU9gaXLlaj3nVPjS1Z5jP8G-OxQjNZqGp0o25Yp/exec';
+        
+        // Questions data with scoring
+        const questions = [
+            {num: 1, text: "Je suis une personne compatissante", category: "IS", scores: [0,1,2,3]},
+            {num: 2, text: "J'utilise souvent des mots et des phrases entendus dans des films ou à la télévision dans les conversations", category: "L", scores: [3,2,1,0]},
+            {num: 3, text: "Je suis souvent surpris lorsque les autres me disent que j'ai été impoli.", category: "IS", scores: [3,2,1,0]},
+            {num: 4, text: "Parfois, je parle trop fort ou trop doucement et je ne m'en aperçois pas.", category: "SM", scores: [3,2,1,0]},
+            {num: 5, text: "J'ai souvent des difficultés à savoir comment me comporter en société.", category: "IS", scores: [3,2,1,0]},
+            {num: 6, text: "Je peux \"me mettre dans la peau de quelqu'un d'autre\".", category: "IS", scores: [0,1,2,3]},
+            {num: 7, text: "J'ai du mal à comprendre le sens de certaines phrases comme \"je tiens à toi comme à la prunelle de mes yeux\".", category: "L", scores: [3,2,1,0]},
+            {num: 8, text: "J'aime seulement parler aux gens qui partagent mes centres d'intérêt.", category: "IS", scores: [3,2,1,0]},
+            {num: 9, text: "Je fais plus attention aux détails qu'à l'idée générale.", category: "IR", scores: [3,2,1,0]},
+            {num: 10, text: "Je suis sensible à l'effet produit par un aliment dans ma bouche. Ceci est plus important que son goût.", category: "SM", scores: [3,2,1,0]},
+            {num: 11, text: "Mes meilleurs amis ou ma famille me manquent quand nous sommes séparés depuis longtemps.", category: "IS", scores: [3,2,1,0]},
+            {num: 12, text: "Quelquefois, je vexe les autres en disant ce que je pense, sans le faire exprès.", category: "IS", scores: [3,2,1,0]},
+            {num: 13, text: "J'aime seulement penser et parler des choses qui m'intéressent.", category: "IR", scores: [3,2,1,0]},
+            {num: 14, text: "Je préfère aller manger dans un restaurant tout seul plutôt qu'avec quelqu'un que je connais.", category: "IS", scores: [3,2,1,0]},
+            {num: 15, text: "Je n'arrive pas à imaginer comment ce serait d'être quelqu'un d'autre.", category: "L", scores: [3,2,1,0]},
+            {num: 16, text: "On m'a déjà dit que j'étais maladroit ou que je manquais de coordination.", category: "SM", scores: [3,2,1,0]},
+            {num: 17, text: "Les autres me trouvent étrange ou différent.", category: "IS", scores: [3,2,1,0]},
+            {num: 18, text: "Je comprends lorsque des amis ont besoin d'être réconfortés.", category: "IS", scores: [0,1,2,3]},
+            {num: 19, text: "Je suis très sensible au contact de mes vêtements lorsque je les touche. Leur texture est plus importante pour moi que leur look.", category: "SM", scores: [3,2,1,0]},
+            {num: 20, text: "J'aime copier la manière dont les autres parlent et bougent.", category: "IS", scores: [3,2,1,0]},
+            {num: 21, text: "Il est difficile pour moi de comprendre ce que ressentent les autres lorsque nous parlons.", category: "IS", scores: [3,2,1,0]},
+            {num: 22, text: "J'ai de l'attention pour les autres lors de conversations.", category: "IS", scores: [0,1,2,3]},
+            {num: 23, text: "Je peux me mettre à la place de quelqu'un d'autre et imaginer ce qu'il ressent.", category: "IS", scores: [0,1,2,3]},
+            {num: 24, text: "Je me concentre sur un sujet ou une activité à la fois, et il m'est difficile de passer de l'un à l'autre.", category: "IR", scores: [3,2,1,0]},
+            {num: 25, text: "Il est difficile de déterminer ce que les autres attendent de moi.", category: "IS", scores: [3,2,1,0]},
+            {num: 26, text: "J'aime avoir une conversation avec plusieurs personnes, par exemple lors d'un dîner, à l'école ou au travail.", category: "IS", scores: [0,1,2,3]},
+            {num: 27, text: "Je prends les choses trop au premier degré, ainsi je passe à côté de ce que les gens essaient de me dire.", category: "L", scores: [3,2,1,0]},
+            {num: 28, text: "C'est très difficile pour moi de comprendre lorsque quelqu'un est gêné ou jaloux.", category: "IS", scores: [3,2,1,0]},
+            {num: 29, text: "Certaines textures ordinaires qui ne posent aucun problème aux autres sont pour moi insupportables lorsqu'elles sont au contact de ma peau.", category: "SM", scores: [3,2,1,0]},
+            {num: 30, text: "Je suis très contrarié lorsqu'on m'empêche de faire les choses à ma façon.", category: "IR", scores: [3,2,1,0]},
+            {num: 31, text: "Je n'ai jamais désiré ou eu besoin de ce que les autres personnes appellent une \"relation intime\".", category: "IS", scores: [3,2,1,0]},
+            {num: 32, text: "C'est difficile pour moi de commencer et d'arrêter une conversation. J'ai besoin d'aller jusqu'au bout de mon propos.", category: "IR", scores: [3,2,1,0]},
+            {num: 33, text: "Je parle avec un rythme de voix normal.", category: "SM", scores: [0,1,2,3]},
+            {num: 34, text: "Je peux sans transition être très sensible ou pas du tout sensible au même son, à la même couleur ou à la même texture.", category: "SM", scores: [3,2,1,0]},
+            {num: 35, text: "La phrase \"je t'ai dans la peau\" me met mal à l'aise.", category: "L", scores: [3,2,1,0]},
+            {num: 36, text: "Quelquefois, la sonorité d'un mot ou un bruit aigu peut me faire mal aux oreilles.", category: "SM", scores: [3,2,1,0]},
+            {num: 37, text: "On me considère comme une personne très compréhensive.", category: "IS", scores: [0,1,2,3]},
+            {num: 38, text: "Je ne peux pas m'identifier à un personnage dans un film, et je ne peux pas ressentir ce qu'il ressent.", category: "IS", scores: [3,2,1,0]},
+            {num: 39, text: "Je ne peux pas dire si quelqu'un est en train de me draguer.", category: "IS", scores: [3,2,1,0]},
+            {num: 40, text: "Je peux me représenter avec précisions les détails qui m'intéressent.", category: "IR", scores: [3,2,1,0]},
+            {num: 41, text: "Je fais des listes de choses qui m'intéressent, même si elles n'ont pas d'utilité pratique (par exemple statistiques sportives, horaires de train, dates du calendrier, faits historiques, etc.)", category: "IR", scores: [3,2,1,0]},
+            {num: 42, text: "Quand je me sens dépassé par des stimulations sensorielles, je dois m'isoler pour y échapper.", category: "SM", scores: [3,2,1,0]},
+            {num: 43, text: "J'aime parler de choses et d'autres avec mes amis.", category: "IS", scores: [0,1,2,3]},
+            {num: 44, text: "Je ne peux pas dire si quelqu'un est intéressé ou ennuyé par ce que je dis.", category: "IS", scores: [3,2,1,0]},
+            {num: 45, text: "Lorsque quelqu'un est en train de parler, il peut m'être très difficile de lire sur son visage, de comprendre les mouvements de ses mains ou de son corps.", category: "IS", scores: [3,2,1,0]},
+            {num: 46, text: "Je peux ressentir à différents moments la même chose très différemment (comme des vêtements ou la température).", category: "SM", scores: [3,2,1,0]},
+            {num: 47, text: "Je me sens très à l'aise lors d'un rendez-vous amoureux ou lorsque je me trouve en société.", category: "IS", scores: [0,1,2,3]},
+            {num: 48, text: "J'essaie d'être aussi aidant que possible lorsque les autres me parlent de leurs problèmes personnels.", category: "IS", scores: [0,1,2,3]},
+            {num: 49, text: "On m'a dit que j'avais une voix particulière (par exemple plate, monotone, enfantine ou aigüe)", category: "SM", scores: [3,2,1,0]},
+            {num: 50, text: "Quelquefois une idée ou un sujet reste bloqué dans mon esprit et je dois en parler, même si cela n'intéresse personne.", category: "IR", scores: [3,2,1,0]},
+            {num: 51, text: "Je fais certaines choses avec mes mains de façon répétée (comme un battement d'ailes, faire tournoyer un bâton ou une ficelle, agiter des choses devant mes yeux).", category: "SM", scores: [3,2,1,0]},
+            {num: 52, text: "Je n'ai jamais été intéressé par ce que la plupart des gens que je connais considèrent comme intéressant.", category: "IR", scores: [3,2,1,0]},
+            {num: 53, text: "On me considère comme une personne compatissante.", category: "IS", scores: [0,1,2,3]},
+            {num: 54, text: "Pour m'entendre avec les autres, je suis un ensemble de règles spécifiques qui m'aident à paraître normal.", category: "IS", scores: [3,2,1,0]},
+            {num: 55, text: "C'est très difficile pour moi de travailler et d'évoluer dans un groupe.", category: "IS", scores: [3,2,1,0]},
+            {num: 56, text: "Lorsque je parle à quelqu'un, il m'est difficile de changer de sujet. Si l'autre personne le fait, je peux être bouleversé et confus.", category: "IR", scores: [3,2,1,0]},
+            {num: 57, text: "Quelquefois, je dois couvrir mes oreilles pour arrêter les bruits douloureux (comme un aspirateur ou des gens qui parlent trop ou trop fort).", category: "SM", scores: [3,2,1,0]},
+            {num: 58, text: "Je peux discuter et avoir des conversations superficielles.", category: "L", scores: [0,1,2,3]},
+            {num: 59, text: "Quelquefois, des choses qui devraient être douloureuses ne me font pas mal (par exemple, lorsque je me blesse ou lorsque je me brûle la main sur un poêle).", category: "SM", scores: [3,2,1,0]},
+            {num: 60, text: "Quand je parle à quelqu'un, j'ai des difficultés à savoir si c'est mon tour de parler ou d'écouter.", category: "IS", scores: [3,2,1,0]},
+            {num: 61, text: "Je suis considéré comme un solitaire par ceux qui me connaissent le mieux.", category: "IS", scores: [3,2,1,0]},
+            {num: 62, text: "Je parle habituellement avec un ton de voix normal.", category: "SM", scores: [0,1,2,3]},
+            {num: 63, text: "J'aime que les choses se déroulent toujours de la même manière, jour après jour, et même les petits changements dans mes routines me perturbent.", category: "IR", scores: [3,2,1,0]},
+            {num: 64, text: "Comment se faire des amis et s'intégrer socialement est un mystère pour moi.", category: "IS", scores: [3,2,1,0]},
+            {num: 65, text: "Cela me calme de tourner en rond ou de me balancer sur une chaise lorsque je me sens stressé.", category: "SM", scores: [3,2,1,0]},
+            {num: 66, text: "La phrase \"il a le cœur sur la main\" n'a pas de sens pour moi.", category: "L", scores: [3,2,1,0]},
+            {num: 67, text: "Si je suis dans un endroit où il y a beaucoup d'odeurs, de matières à toucher, de bruits ou de lumières intenses, je me sens anxieux ou effrayé.", category: "SM", scores: [3,2,1,0]},
+            {num: 68, text: "Je sais faire la différence lorsque quelqu'un dit une chose mais veut en dire une autre.", category: "IS", scores: [0,1,2,3]},
+            {num: 69, text: "J'aime être seul autant que possible.", category: "IS", scores: [3,2,1,0]},
+            {num: 70, text: "Je garde mes pensées empilées dans ma mémoire comme dans un classeur et je prends celles dont j'ai besoin en sélectionnant dans la pile (ou avec une méthode similaire).", category: "IR", scores: [3,2,1,0]},
+            {num: 71, text: "Le même son peut paraître quelquefois très fort ou très doux alors que je sais qu'il n'a pas changé.", category: "SM", scores: [3,2,1,0]},
+            {num: 72, text: "J'aime passer du temps à manger et parler avec ma famille et mes amis.", category: "IS", scores: [0,1,2,3]},
+            {num: 73, text: "Je ne supporte pas les choses que je n'aime pas (comme des odeurs, des matières, des sons ou des couleurs).", category: "SM", scores: [3,2,1,0]},
+            {num: 74, text: "Je n'aime pas être tenu ou étreint.", category: "SM", scores: [3,2,1,0]},
+            {num: 75, text: "Lorsque je vais quelque part, je dois suivre un parcours familier sinon je peux devenir très confus et perturbé.", category: "IR", scores: [3,2,1,0]},
+            {num: 76, text: "C'est difficile de comprendre ce que les autres personnes attendent de moi.", category: "IS", scores: [3,2,1,0]},
+            {num: 77, text: "J'aime avoir des amis proches.", category: "IS", scores: [0,1,2,3]},
+            {num: 78, text: "On me dit que je donne trop de détails.", category: "IR", scores: [3,2,1,0]},
+            {num: 79, text: "On me dit souvent que je pose des questions embarrassantes.", category: "IS", scores: [3,2,1,0]},
+            {num: 80, text: "J'ai tendance à souligner les erreurs des autres.", category: "IS", scores: [3,2,1,0]}
+        ];
+        
+        const options = [
+            "Vrai maintenant et quand j'avais moins de 16 ans",
+            "Vrai seulement maintenant",
+            "Vrai seulement quand j'avais moins de 16 ans",
+            "Jamais vrai"
+        ];
+        
+        // Generate questions
+        function generateQuestions() {
+            const form = document.getElementById('raadsForm');
+            
+            questions.forEach(q => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <div class="question-text">
+                        <span class="question-number">${q.num}</span>
+                        ${q.text}
+                    </div>
+                    <div class="options">
+                        ${options.map((opt, idx) => `
+                            <div class="option">
+                                <input type="radio" 
+                                       name="q${q.num}" 
+                                       id="q${q.num}_${idx}" 
+                                       value="${idx}" 
+                                       required>
+                                <label for="q${q.num}_${idx}">${opt}</label>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                form.appendChild(questionDiv);
+            });
+        }
+        
+        // Calculate scores
+        function calculateScores() {
+            const scores = {
+                L: 0,    // Langage
+                IS: 0,   // Interactions Sociales
+                SM: 0,   // Symptômes Sensorimoteurs
+                IR: 0,   // Intérêts Restreints
+                total: 0
+            };
+            
+            questions.forEach(q => {
+                const selected = document.querySelector(`input[name="q${q.num}"]:checked`);
+                if (selected) {
+                    const optionIndex = parseInt(selected.value);
+                    const score = q.scores[optionIndex];
+                    scores[q.category] += score;
+                    scores.total += score;
+                }
+            });
+            
+            return scores;
+        }
+        
+        // Validate form
+        function validateForm() {
+            const patientId = document.getElementById('patientId').value.trim();
+            const errorMsg = document.getElementById('errorMessage');
+            
+            if (!patientId) {
+                errorMsg.textContent = '⚠️ Veuillez entrer votre identifiant patient.';
+                errorMsg.style.display = 'block';
+                document.getElementById('patientId').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+            
+            // Check if all questions are answered
+            for (let i = 1; i <= 80; i++) {
+                const answered = document.querySelector(`input[name="q${i}"]:checked`);
+                if (!answered) {
+                    errorMsg.textContent = `⚠️ Veuillez répondre à toutes les questions. Question ${i} n'est pas répondue.`;
+                    errorMsg.style.display = 'block';
+                    document.querySelector(`input[name="q${i}"]`).closest('.question').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return false;
+                }
+            }
+            
+            errorMsg.style.display = 'none';
+            return true;
+        }
+        
+        // Send to Google Sheets
+        async function sendToGoogleSheets(patientId, scores) {
+            const data = {
+                patientId: patientId,
+                timestamp: new Date().toISOString(),
+                langage: scores.L,
+                interactionsSociales: scores.IS,
+                symptomesSensorimoteurs: scores.SM,
+                interetsRestreints: scores.IR,
+                total: scores.total
+            };
+            
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                return true;
+            } catch (error) {
+                console.error('Erreur lors de l\'envoi:', error);
+                throw error;
+            }
+        }
+        
+        // Submit handler
+        document.getElementById('submitBtn').addEventListener('click', async function() {
+            if (!validateForm()) {
+                return;
+            }
+            
+            const patientId = document.getElementById('patientId').value.trim();
+            const scores = calculateScores();
+            
+            // Show loading
+            document.getElementById('loadingMessage').style.display = 'block';
+            document.getElementById('submitBtn').disabled = true;
+            
+            try {
+                await sendToGoogleSheets(patientId, scores);
+                
+                // Show success message
+                document.getElementById('loadingMessage').style.display = 'none';
+                const successMsg = document.getElementById('successMessage');
+                successMsg.textContent = '✅ Questionnaire envoyé avec succès ! Merci pour votre participation.';
+                successMsg.style.display = 'block';
+                
+                // Scroll to success message
+                successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Optionally reset form after 3 seconds
+                setTimeout(() => {
+                    if (confirm('Questionnaire envoyé. Voulez-vous recommencer ?')) {
+                        location.reload();
+                    }
+                }, 3000);
+                
+            } catch (error) {
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+                
+                const errorMsg = document.getElementById('errorMessage');
+                errorMsg.textContent = '❌ Erreur lors de l\'envoi. Vérifiez que l\'URL Google Apps Script est correctement configurée.';
+                errorMsg.style.display = 'block';
+                errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+        
+        // Initialize
+        generateQuestions();
+    </script>
+</body>
+</html>
