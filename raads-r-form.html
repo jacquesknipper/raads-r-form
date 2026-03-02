@@ -292,7 +292,7 @@
 
     <script>
         // Configuration - REMPLACEZ CETTE URL PAR VOTRE URL GOOGLE APPS SCRIPT
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwgO49-SaTNXC5bg8l-Cb7BXnRUtTIuYHBK3yhISg1hcmzLjury6B_7YEHMzQcV90Njvw/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxm5YjNEonuhL_dHBpsMNBoNKZR3v2i61HdG6nsZPivI72xSlrB-L2Sg0THE3Tarmbd1w/exec';
         
         // Questions data with scoring
         const questions = [
@@ -424,6 +424,8 @@
                 total: 0
             };
             
+            const responses = [];
+            
             questions.forEach(q => {
                 const selected = document.querySelector(`input[name="q${q.num}"]:checked`);
                 if (selected) {
@@ -431,10 +433,20 @@
                     const score = q.scores[optionIndex];
                     scores[q.category] += score;
                     scores.total += score;
+                    
+                    // Add response details
+                    responses.push({
+                        question: q.num,
+                        text: q.text,
+                        response: optionIndex,
+                        responseText: options[optionIndex],
+                        score: score,
+                        category: q.category
+                    });
                 }
             });
             
-            return scores;
+            return { scores, responses };
         }
         
         // Validate form
@@ -465,15 +477,19 @@
         }
         
         // Send to Google Sheets
-        async function sendToGoogleSheets(patientId, scores) {
+        async function sendToGoogleSheets(patientId, result) {
             const data = {
+                type: 'RAADS-R',
                 patientId: patientId,
                 timestamp: new Date().toISOString(),
-                langage: scores.L,
-                interactionsSociales: scores.IS,
-                symptomesSensorimoteurs: scores.SM,
-                interetsRestreints: scores.IR,
-                total: scores.total
+                scores: {
+                    langage: result.scores.L,
+                    interactionsSociales: result.scores.IS,
+                    symptomesSensorimoteurs: result.scores.SM,
+                    interetsRestreints: result.scores.IR,
+                    total: result.scores.total
+                },
+                responses: result.responses
             };
             
             try {
@@ -500,14 +516,14 @@
             }
             
             const patientId = document.getElementById('patientId').value.trim();
-            const scores = calculateScores();
+            const result = calculateScores();
             
             // Show loading
             document.getElementById('loadingMessage').style.display = 'block';
             document.getElementById('submitBtn').disabled = true;
             
             try {
-                await sendToGoogleSheets(patientId, scores);
+                await sendToGoogleSheets(patientId, result);
                 
                 // Show success message
                 document.getElementById('loadingMessage').style.display = 'none';
